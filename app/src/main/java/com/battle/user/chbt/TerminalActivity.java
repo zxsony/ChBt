@@ -2,6 +2,10 @@ package com.battle.user.chbt;
 
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,9 +13,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 
 import java.util.Calendar;
@@ -21,6 +25,9 @@ import java.util.TimerTask;
 
 public class TerminalActivity extends AppCompatActivity {
     private TextView dataread;
+    private boolean chgEn;
+    private boolean prEn;
+    protected MediaPlayer _mediaPlayer;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +45,7 @@ public class TerminalActivity extends AppCompatActivity {
         });
         dataread = findViewById(R.id.tv_1);
         dataread.setText("");
+        prEn = true;
     }
 
     @Override
@@ -49,23 +57,50 @@ public class TerminalActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Timer myTimer = new Timer(); // Создаем таймер
-        final Handler uiHandler = new Handler();
-        final TextView txtResult = (TextView)findViewById(R.id.tv_1);
-        myTimer.schedule(new TimerTask() { // Определяем задачу
-            @Override
-            public void run() {
-                final float result = getActualData();
-                uiHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Date currentTime = Calendar.getInstance().getTime();
-                        txtResult.append( currentTime.getHours() + ":" + currentTime.getMinutes() + " " + result + " mV\n");
-                    }
-                });
-            };
-        }, 1000L, 600L * 1000);
+        if (prEn) {
+            prEn = false;
+            Timer myTimer = new Timer(); // Создаем таймер
+            final Handler uiHandler = new Handler();
+            final TextView txtResult = (TextView) findViewById(R.id.tv_1);
+            myTimer.schedule(new TimerTask() { // Определяем задачу
+                @Override
+                public void run() {
+                    final float result = getActualData();
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Date currentTime = Calendar.getInstance().getTime();
+                            txtResult.append(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + result + " mV\n");
+                            if (chgEn) {
+                                try {
+                                    Uri notify = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notify);
+                                    r.play();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                try {
+                                    Thread.sleep(2000);
+                                } catch (Exception e) {
 
+                                }
+                                if (result > 4210) {
+                                    playFromResource(R.raw.pp);
+                                } else if (result > 4200) {
+                                    playFromResource(R.raw.sg);
+                                } else if (result > 4150) {
+                                    playFromResource(R.raw.ob);
+                                } else {
+                                    playFromResource(R.raw.nsmt);
+                                }
+                            }
+                        }
+                    });
+                }
+
+                ;
+            }, 1000L, 600L * 1000);
+        }
     }
 
     @Override
@@ -100,8 +135,10 @@ public class TerminalActivity extends AppCompatActivity {
         boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL;
 
         if (isCharging == true) {
+            chgEn = true;
             //dataread.setText("CHARGING");
         } else {
+            chgEn = false;
             //dataread.setText("NOT CHARGING");
         }
         int voltage = batteryStatus.getIntExtra(BatteryManager.EXTRA_VOLTAGE, -1);
@@ -111,5 +148,15 @@ public class TerminalActivity extends AppCompatActivity {
         //dataread.append("\n" + voltage + " V " + level +"%");
         batteryStatus = null;
         return voltage;
+    }
+    protected void playFromResource(int resId)
+    {
+        if (_mediaPlayer != null)
+        {
+            _mediaPlayer.stop();
+            _mediaPlayer.release();
+        }
+        _mediaPlayer = MediaPlayer.create(this, resId);
+        _mediaPlayer.start();
     }
 }
