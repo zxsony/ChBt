@@ -84,7 +84,7 @@ public class TerminalActivity extends AppCompatActivity {
                                 } catch (Exception e) {
 
                                 }
-                                if (result > 4210) {
+                                if (result > 4250) {
                                     playFromResource(R.raw.pp);
                                 } else if (result > 4200) {
                                     playFromResource(R.raw.sg);
