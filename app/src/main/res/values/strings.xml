@@ -2,4 +2,6 @@
     <string name="app_name">ChBt</string>
     <string name="action_settings">Settings</string>
     <string name="test">Test</string>
+    <string name="your_message">ura!</string>
+
 </resources>

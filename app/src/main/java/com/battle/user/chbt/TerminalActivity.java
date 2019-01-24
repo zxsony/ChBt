@@ -28,6 +28,7 @@ public class TerminalActivity extends AppCompatActivity {
     private boolean chgEn;
     private boolean prEn;
     protected MediaPlayer _mediaPlayer;
+    private float prevVoltage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +47,8 @@ public class TerminalActivity extends AppCompatActivity {
         dataread = findViewById(R.id.tv_1);
         dataread.setText("");
         prEn = true;
+        prevVoltage = getActualData();
+
     }
 
     @Override
@@ -66,11 +69,15 @@ public class TerminalActivity extends AppCompatActivity {
                 @Override
                 public void run() {
                     final float result = getActualData();
+                    final float datadiff = result - prevVoltage;
+                    if (result != prevVoltage){
+                        prevVoltage = result;
+                    }
                     uiHandler.post(new Runnable() {
                         @Override
                         public void run() {
                             Date currentTime = Calendar.getInstance().getTime();
-                            txtResult.append(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + result + " mV\n");
+                            txtResult.append(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + result/1000 + " V (d: " + (int)datadiff + " mV)\n");
                             if (chgEn) {
                                 try {
                                     Uri notify = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
