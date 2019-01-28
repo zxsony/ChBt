@@ -5,7 +5,7 @@ import android.media.MediaPlayer;
 
 public class MyPlayer {
     protected MediaPlayer _mediaPlayer;
-    protected void playFromResource(Context context)
+    protected void playFromResource(Context context, int resId)
     {
 
 
@@ -14,7 +14,8 @@ public class MyPlayer {
             _mediaPlayer.stop();
             _mediaPlayer.release();
         }
-        _mediaPlayer = MediaPlayer.create(context , R.raw.kukaracha);
+        _mediaPlayer = MediaPlayer.create(context , resId);
         _mediaPlayer.start();
     }
+
 }

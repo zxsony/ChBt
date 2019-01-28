@@ -2,7 +2,6 @@ package com.battle.user.chbt;
 
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -13,9 +12,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.Calendar;
@@ -25,10 +26,14 @@ import java.util.TimerTask;
 
 public class TerminalActivity extends AppCompatActivity {
     private TextView dataread;
+    private Button btnStart;
+    private Button btnStop;
     private boolean chgEn;
-    private boolean prEn;
-    protected MediaPlayer _mediaPlayer;
+    //private boolean prEn;
+    private static boolean tmEn = false;
+    //protected MediaPlayer _mediaPlayer;
     private float prevVoltage;
+    private Timer myTimer = new Timer();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -45,9 +50,13 @@ public class TerminalActivity extends AppCompatActivity {
             }
         });
         dataread = findViewById(R.id.tv_1);
+        btnStart = findViewById(R.id.btnStart);
+        btnStop = findViewById(R.id.btnStop);
+
         dataread.setText("");
-        prEn = true;
+        //prEn = true;
         prevVoltage = getActualData();
+        if (!tmEn){timerStart();tmEn = true;}
 
     }
 
@@ -57,57 +66,14 @@ public class TerminalActivity extends AppCompatActivity {
         dataread.append("Pause\n");
     }
 
-    @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
-        if (prEn) {
-            prEn = false;
-            Timer myTimer = new Timer(); // Создаем таймер
-            final Handler uiHandler = new Handler();
-            final TextView txtResult = (TextView) findViewById(R.id.tv_1);
-            myTimer.schedule(new TimerTask() { // Определяем задачу
-                @Override
-                public void run() {
-                    final float result = getActualData();
-                    final float datadiff = result - prevVoltage;
-                    if (result != prevVoltage){
-                        prevVoltage = result;
-                    }
-                    uiHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Date currentTime = Calendar.getInstance().getTime();
-                            txtResult.append(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + result/1000 + " V (d: " + (int)datadiff + " mV)\n");
-                            if (chgEn) {
-                                try {
-                                    Uri notify = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                    Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notify);
-                                    r.play();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                try {
-                                    Thread.sleep(2000);
-                                } catch (Exception e) {
+        //if (prEn) {
+        //    prEn = false;
 
-                                }
-                                if (result > 4250) {
-                                    playFromResource(R.raw.pp);
-                                } else if (result > 4200) {
-                                    playFromResource(R.raw.sg);
-                                } else if (result > 4150) {
-                                    playFromResource(R.raw.ob);
-                                } else {
-                                    playFromResource(R.raw.nsmt);
-                                }
-                            }
-                        }
-                    });
-                }
 
-                ;
-            }, 1000L, 600L * 1000);
-        }
+
+        //}
     }
 
     @Override
@@ -130,6 +96,12 @@ public class TerminalActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    @Override
+    public void onBackPressed(){
+        myTimer.cancel();
+        tmEn = false;
+        super.onBackPressed();
     }
 
     public float getActualData() {
@@ -156,14 +128,71 @@ public class TerminalActivity extends AppCompatActivity {
         batteryStatus = null;
         return voltage;
     }
-    protected void playFromResource(int resId)
+    protected void playSnd(int resId)
     {
-        if (_mediaPlayer != null)
-        {
-            _mediaPlayer.stop();
-            _mediaPlayer.release();
+        MyPlayer mp = new MyPlayer();
+        mp.playFromResource(this, resId);
+    }
+
+    protected void timerStart() {
+        final Handler uiHandler = new Handler();
+        final TextView txtResult = (TextView) findViewById(R.id.tv_1);
+        myTimer.schedule(new TimerTask() { // Определяем задачу
+            @Override
+            public void run() {
+                final float result = getActualData();
+                final float datadiff = result - prevVoltage;
+                if (result != prevVoltage){
+                    prevVoltage = result;
+                }
+                uiHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Date currentTime = Calendar.getInstance().getTime();
+                        txtResult.append(currentTime.getHours() + ":" + currentTime.getMinutes() + " " + result/1000 + " V (d: " + (int)datadiff + " mV)\n");
+                        if (chgEn) {
+                            try {
+                                Uri notify = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notify);
+                                r.play();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                Thread.sleep(2000);
+                            } catch (Exception e) {
+
+                            }
+                            if (result > 4250) {
+                                playSnd(R.raw.pp);
+                            } else if (result > 4200) {
+                                playSnd(R.raw.sg);
+                            } else if (result > 4150) {
+                                playSnd(R.raw.ob);
+                            } else {
+                                playSnd(R.raw.nsmt);
+                            }
+                        }
+                    }
+                });
+            }
+
+            ;
+        }, 1000L, 600L * 1000);
+    }
+
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btnStart:
+                // кнопка ОК
+                Log.d("zxapp", this.getResources().getString(R.string.start));
+                startService(new Intent(this, MainService.class));
+                break;
+            case R.id.btnStop:
+                // кнопка Cancel
+                Log.d("zxapp", this.getResources().getString(R.string.stop));
+                stopService(new Intent(this, MainService.class));
+                break;
         }
-        _mediaPlayer = MediaPlayer.create(this, resId);
-        _mediaPlayer.start();
     }
 }
