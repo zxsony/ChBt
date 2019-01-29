@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,28 +20,32 @@ public class MainService extends Service {
 
     static int  count = 0;
     public void onCreate() {
+        Log.d("zxapp", "onCreate");
+        //Toast.makeText(this, "create service", Toast.LENGTH_SHORT).show();
+        //mp.playFromResource(this, R.raw.beep);
         super.onCreate();
-        Log.d(LOG_TAG, "onCreate");
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(LOG_TAG, "onStartCommand");
-
-        mp.playFromResource(this, R.raw.hlstart);
+        Log.d("zxapp", "onStartCommand");
+        mp.playFromResource(this, R.raw.beep);
         someTask(intent, this);
+        Toast.makeText(this, "start command service", Toast.LENGTH_SHORT).show();
         //return super.onStartCommand(intent, flags, startId);
+
         return START_STICKY;
     }
 
     public void onDestroy() {
+        Log.d("zxapp", "onDestroy");
+        mp.playFromResource(this, R.raw.beep);
+        Toast.makeText(this, "service destroy", Toast.LENGTH_SHORT).show();
+        myTimer.cancel();
         super.onDestroy();
-        Log.d(LOG_TAG, "onDestroy");
-        mp.playFromResource(this, R.raw.hlstop);
-        //myTimer.cancel();
     }
 
     public IBinder onBind(Intent intent) {
-        Log.d(LOG_TAG, "onBind");
+        Log.d("zxapp", "onBind");
         return null;
     }
 
@@ -51,6 +54,7 @@ public class MainService extends Service {
         final Handler uiHandler = new Handler();
         final Intent itnt = intent;
         final Context ctxt = context;
+        //SystemClock.sleep(2000);
         myTimer.schedule(new TimerTask() { // Определяем задачу
             @Override
             public void run() {
@@ -61,14 +65,15 @@ public class MainService extends Service {
                         Date currentTime = Calendar.getInstance().getTime();
                         count = count + 1 ;
                         playSnd( R.raw.beep);
-                        SystemClock.sleep(2000);
-                        Toast toast = Toast.makeText(ctxt.getApplicationContext(),
-                            "1-" + String.valueOf(count), Toast.LENGTH_LONG);
-                        toast.show();
-                        SystemClock.sleep(4000);
-                        toast = Toast.makeText(ctxt.getApplicationContext(),
-                                "2-" + String.valueOf(count), Toast.LENGTH_LONG);
-                        toast.show();
+                        //SystemClock.sleep(2000);
+                        Toast.makeText(ctxt, "count - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
+//                        Toast toast = Toast.makeText(ctxt.getApplicationContext(),
+//                            "1-" + String.valueOf(count), Toast.LENGTH_LONG);
+//                        toast.show();
+//                        SystemClock.sleep(4000);
+//                        toast = Toast.makeText(ctxt.getApplicationContext(),
+//                                "2-" + String.valueOf(count), Toast.LENGTH_LONG);
+//                        toast.show();
                     }
                 });
             }

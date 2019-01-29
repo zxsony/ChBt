@@ -18,10 +18,8 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            Toast toast = Toast.makeText(context.getApplicationContext(),
-                    context.getResources().getString(R.string.your_message), Toast.LENGTH_LONG);
-            toast.show();
-            Log.d("myapp", context.getResources().getString(R.string.your_message));
+            Toast.makeText(context, "onReceive", Toast.LENGTH_SHORT).show();
+            Log.d("zxapp", "onReceive");
 
             mp.playFromResource(context, R.raw.kukaracha);
             // ваш код здесь
@@ -40,7 +38,13 @@ public class BootCompletedReceiver extends BroadcastReceiver {
                 uiHandler.post(new Runnable() {
                     @Override
                     public void run() {
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         mp.playFromResource(ctx, R.raw.beep);
+                        Toast.makeText(ctx, "Beep", Toast.LENGTH_SHORT).show();
                     }
                 });
             }

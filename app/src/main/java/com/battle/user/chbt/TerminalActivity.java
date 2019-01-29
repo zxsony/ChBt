@@ -185,12 +185,12 @@ public class TerminalActivity extends AppCompatActivity {
         switch (view.getId()) {
             case R.id.btnStart:
                 // кнопка ОК
-                Log.d("zxapp", this.getResources().getString(R.string.start));
+                Log.d("zxapp", "btnStart");
                 startService(new Intent(this, MainService.class));
                 break;
             case R.id.btnStop:
                 // кнопка Cancel
-                Log.d("zxapp", this.getResources().getString(R.string.stop));
+                Log.d("zxapp", "btnStop");
                 stopService(new Intent(this, MainService.class));
                 break;
         }
