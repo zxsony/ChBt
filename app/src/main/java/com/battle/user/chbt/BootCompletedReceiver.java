@@ -18,12 +18,13 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
-            Toast.makeText(context, "onReceive", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(context, "onReceive", Toast.LENGTH_SHORT).show();
             Log.d("zxapp", "onReceive");
-
-            mp.playFromResource(context, R.raw.kukaracha);
+            //mp.playFromResource(context, R.raw.kukaracha);
             // ваш код здесь
-            beepTask(context);
+            context.startService(new Intent(context, MainService.class));
+            //context.startForegroundService(new Intent(context, MainService.class));
+            //beepTask(context);
         }
     }
     public void beepTask(Context context) {
