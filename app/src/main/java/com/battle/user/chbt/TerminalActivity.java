@@ -29,9 +29,7 @@ public class TerminalActivity extends AppCompatActivity {
     private Button btnStart;
     private Button btnStop;
     private boolean chgEn;
-    //private boolean prEn;
     private static boolean tmEn = false;
-    //protected MediaPlayer _mediaPlayer;
     private float prevVoltage;
     private Timer myTimer = new Timer();
     @Override
@@ -184,15 +182,14 @@ public class TerminalActivity extends AppCompatActivity {
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnStart:
-                // кнопка ОК
                 Log.d("zxapp", "btnStart");
                 startService(new Intent(this, MainService.class));
                 break;
             case R.id.btnStop:
-                // кнопка Cancel
                 Log.d("zxapp", "btnStop");
                 stopService(new Intent(this, MainService.class));
                 break;
         }
     }
+
 }

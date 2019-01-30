@@ -1,7 +1,6 @@
 package com.battle.user.chbt;
 
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -36,14 +35,11 @@ public class MainService extends Service {
             // Normally we would do some work here, like download a file.
             // For our sample, we just sleep for 5 seconds.
             try {
-                //Toast.makeText( getApplicationContext(), "kukaracha 1", Toast.LENGTH_SHORT).show();
                 playSnd( R.raw.kukaracha);
-                beepTask();
-                //someTask(new Intent(getApplicationContext(), MainService.class), getApplicationContext());
-                Thread.sleep(5000000);
-                playSnd( R.raw.kukaracha);
-
-                //Toast.makeText( getApplicationContext(), "kukaracha 2", Toast.LENGTH_SHORT).show();
+                Thread.sleep(2000);
+                scheduleTask();
+                Thread.sleep(60000000);
+                playSnd( R.raw.hlstop);
             } catch (InterruptedException e) {
                 // Restore interrupt status.
                 Thread.currentThread().interrupt();
@@ -54,26 +50,19 @@ public class MainService extends Service {
         }
     }
 
-
     public void onCreate() {
-        Log.d("zxapp", "onCreate");
-        //Toast.makeText(this, "create service", Toast.LENGTH_SHORT).show();
-        //mp.playFromResource(this, R.raw.beep);
+        Log.d("zxapp", "on create");
         //super.onCreate();
         HandlerThread thread = new HandlerThread("ServiceStartArguments", Process.THREAD_PRIORITY_BACKGROUND);
         thread.start();
-
         // Get the HandlerThread's Looper and use it for our Handler
         mServiceLooper = thread.getLooper();
         mServiceHandler = new ServiceHandler(mServiceLooper);
-        //startForeground(1,new Notification());
     }
 
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("zxapp", "onStartCommand");
-        //mp.playFromResource(this, R.raw.beep);
-        //someTask(intent, this);
-        Toast.makeText(this, "start command service", Toast.LENGTH_SHORT).show();
+        Log.d("zxapp", "on start command");
+        Toast.makeText(this, "on start command service", Toast.LENGTH_SHORT).show();
         //return super.onStartCommand(intent, flags, startId);
         Message msg = mServiceHandler.obtainMessage();
         msg.arg1 = startId;
@@ -83,7 +72,7 @@ public class MainService extends Service {
     }
 
     public void onDestroy() {
-        Log.d("zxapp", "onDestroy");
+        Log.d("zxapp", "on destroy");
         mp.playFromResource(this, R.raw.beep);
         Toast.makeText(this, "service destroy", Toast.LENGTH_SHORT).show();
         myTimer.cancel();
@@ -95,56 +84,33 @@ public class MainService extends Service {
         return null;
     }
 
-    void someTask(Intent intent, Context context) {
-
-        final Handler uiHandler = new Handler();
-        final Intent itnt = intent;
-        final Context ctxt = context;
-        //SystemClock.sleep(2000);
-        myTimer.schedule(new TimerTask() { // Определяем задачу
-            @Override
-            public void run() {
-                playSnd( R.raw.beep);
-                //count = count + 1 ;
-                //Toast.makeText(getApplicationContext(), "count - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
-                Log.d("zxapp", "count - " + String.valueOf(count));
-
-            }
-        }, 1000L, 600L * 1000);
-    }
-
     protected void playSnd(int resId)
     {
         MyPlayer mp = new MyPlayer();
         mp.playFromResource(this, resId);
-
     }
-    void beepTask() {
-        Intent itnt = new Intent(this, MainService.class);
-        final Context ctxt = this;
-        Log.d("zxapp", "wo ui count - " + String.valueOf(count));
-        //count = count + 1 ;
+
+    void scheduleTask() {
+        Log.d("zxapp", "schedule start count - " + String.valueOf(count));
         myTimer.schedule(new TimerTask() { // Определяем задачу
             @Override
             public void run() {
                 playSnd( R.raw.beep);
-                //Toast.makeText(getApplicationContext(), "count woui - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
                 count = count + 1 ;
-                //Log.d("zxapp", "count - " + String.valueOf(count));
                 postTask();
             }
-        }, 1000L, 6L * 1000);
+        }, 1000L, 600L * 1000);
     }
+
     void postTask(){
         final  Handler uiHandler = new Handler(Looper.getMainLooper());
         uiHandler.post(new Runnable() {
 
             @Override
             public void run() {
-                Log.d("zxapp", "ui new count - " + String.valueOf(count));
-                Toast.makeText(getApplicationContext(), "count wui - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
+                Log.d("zxapp", "current count - " + String.valueOf(count));
+                Toast.makeText(getApplicationContext(), "current count - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
             }
         });
     }
-
 }
