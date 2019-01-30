@@ -38,7 +38,8 @@ public class MainService extends Service {
             try {
                 //Toast.makeText( getApplicationContext(), "kukaracha 1", Toast.LENGTH_SHORT).show();
                 playSnd( R.raw.kukaracha);
-                someTask(new Intent(getApplicationContext(), MainService.class), getApplicationContext());
+                beepTask();
+                //someTask(new Intent(getApplicationContext(), MainService.class), getApplicationContext());
                 Thread.sleep(5000000);
                 playSnd( R.raw.kukaracha);
 
@@ -104,26 +105,10 @@ public class MainService extends Service {
             @Override
             public void run() {
                 playSnd( R.raw.beep);
-                count = count + 1 ;
+                //count = count + 1 ;
                 //Toast.makeText(getApplicationContext(), "count - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
                 Log.d("zxapp", "count - " + String.valueOf(count));
-//                uiHandler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Date currentTime = Calendar.getInstance().getTime();
-//                        count = count + 1 ;
-//                        playSnd( R.raw.beep);
-//                        //SystemClock.sleep(2000);
-//                        Toast.makeText(ctxt, "count - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
-////                        Toast toast = Toast.makeText(ctxt.getApplicationContext(),
-////                            "1-" + String.valueOf(count), Toast.LENGTH_LONG);
-////                        toast.show();
-////                        SystemClock.sleep(4000);
-////                        toast = Toast.makeText(ctxt.getApplicationContext(),
-////                                "2-" + String.valueOf(count), Toast.LENGTH_LONG);
-////                        toast.show();
-//                    }
-//                });
+
             }
         }, 1000L, 600L * 1000);
     }
@@ -134,4 +119,32 @@ public class MainService extends Service {
         mp.playFromResource(this, resId);
 
     }
+    void beepTask() {
+        Intent itnt = new Intent(this, MainService.class);
+        final Context ctxt = this;
+        Log.d("zxapp", "wo ui count - " + String.valueOf(count));
+        //count = count + 1 ;
+        myTimer.schedule(new TimerTask() { // Определяем задачу
+            @Override
+            public void run() {
+                playSnd( R.raw.beep);
+                //Toast.makeText(getApplicationContext(), "count woui - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
+                count = count + 1 ;
+                //Log.d("zxapp", "count - " + String.valueOf(count));
+                postTask();
+            }
+        }, 1000L, 6L * 1000);
+    }
+    void postTask(){
+        final  Handler uiHandler = new Handler(Looper.getMainLooper());
+        uiHandler.post(new Runnable() {
+
+            @Override
+            public void run() {
+                Log.d("zxapp", "ui new count - " + String.valueOf(count));
+                Toast.makeText(getApplicationContext(), "count wui - " + String.valueOf(count), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 }
